@@ -48,14 +48,16 @@ int main()
   }
   if (!std::cin) {
     delete[] seq;
-    std::cerr << "<INVALID SEQUENCE SIZE>\n";
+    std::cerr << "<INVALID SEQUENCE>\n";
     return 1;
   }
   maslevtsov::BiTree< int >* root = nullptr;
   try {
     root = maslevtsov::convert(seq, seq_size, std::less< int >());
   } catch (const std::bad_alloc&) {
-    std::cerr << "";
+    delete[] seq;
+    std::cerr << "<CONVERTATION ERROR\n>";
+    return 1;
   }
 
   while (!std::cin.eof()) {
@@ -113,7 +115,7 @@ maslevtsov::BiTree< T >* maslevtsov::convert(const T* data, std::size_t s, Cmp c
   }
   BiTree< T >* root = new BiTree< T >{data[0], nullptr, nullptr, nullptr};
   try {
-    for (size_t i = 1; i < s; i++) {
+    for (std::size_t i = 1; i != s; ++i) {
       BiTree< T >* node = new BiTree< T >{data[i], nullptr, nullptr, nullptr};
       insert(root, node, cmp);
     }
