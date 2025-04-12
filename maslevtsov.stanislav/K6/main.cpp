@@ -48,7 +48,7 @@ int main()
   }
   if (!std::cin) {
     delete[] seq;
-    std::cerr << "<IVALID SEQUENCE SIZE>\n";
+    std::cerr << "<INVALID SEQUENCE SIZE>\n";
     return 1;
   }
   maslevtsov::BiTree< int >* root = nullptr;
