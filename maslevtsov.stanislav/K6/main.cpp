@@ -80,7 +80,7 @@ int main()
     } catch (const std::logic_error&) {
       delete[] seq;
       clear(root);
-      std::cerr << "INVALID ROTATE\n";
+      std::cerr << "<INVALID ROTATE>\n";
       return 1;
     }
   }
@@ -90,6 +90,8 @@ int main()
     std::cerr << "<INVALID COMMAND>\n";
     return 1;
   }
+  delete[] seq;
+  clear(root);
 }
 
 template< class T >
