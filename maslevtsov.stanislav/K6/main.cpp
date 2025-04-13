@@ -79,10 +79,7 @@ int main()
       std::cerr << "<INVALID COMMAND>\n";
       return 1;
     } catch (const std::logic_error&) {
-      delete[] seq;
-      clear(root);
       std::cerr << "<INVALID ROTATE>\n";
-      return 1;
     }
   }
   if (!std::cin.eof() && !std::cin) {
@@ -92,7 +89,9 @@ int main()
     return 1;
   }
 
-  std::cout << result->data_ << '\n';
+  if (result) {
+    std::cout << result->data_ << '\n';
+  }
 
   delete[] seq;
   clear(root);
@@ -170,8 +169,8 @@ maslevtsov::BiTree< T >* maslevtsov::rotate_left(BiTree< T >* root)
     if (sub_root->parent_->right_ == sub_root) {
       sub_root->parent_->right_ = root;
     }
-    root->parent_ = sub_root->parent_;
   }
+  root->parent_ = sub_root->parent_;
   sub_root->parent_ = root;
   return root;
 }
@@ -196,8 +195,8 @@ maslevtsov::BiTree< T >* maslevtsov::rotate_right(BiTree< T >* root)
     if (sub_root->parent_->right_ == sub_root) {
       sub_root->parent_->right_ = root;
     }
-    root->parent_ = sub_root->parent_;
   }
+  root->parent_ = sub_root->parent_;
   sub_root->parent_ = root;
   return root;
 }
