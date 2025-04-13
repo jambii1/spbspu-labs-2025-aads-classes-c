@@ -62,13 +62,14 @@ int main()
 
   std::string command = "";
   int num = 0;
+  maslevtsov::BiTree< int >* result = nullptr;
   while (std::cin >> command >> num || !std::cin.eof()) {
     maslevtsov::BiTree< int >* sub_root = root;
     try {
       if (command == "right") {
-        maslevtsov::rotate_right(find(sub_root, num, std::less< int >()));
+        result = maslevtsov::rotate_right(find(sub_root, num, std::less< int >()));
       } else if (command == "left") {
-        maslevtsov::rotate_left(find(sub_root, num, std::less< int >()));
+        result = maslevtsov::rotate_left(find(sub_root, num, std::less< int >()));
       } else {
         throw std::invalid_argument("invalid command");
       }
@@ -90,6 +91,9 @@ int main()
     std::cerr << "<INVALID COMMAND>\n";
     return 1;
   }
+
+  std::cout << result->data_ << '\n';
+
   delete[] seq;
   clear(root);
 }
@@ -156,8 +160,8 @@ maslevtsov::BiTree< T >* maslevtsov::rotate_left(BiTree< T >* root)
   root = root->right_;
   if (root->left_) {
     root->left_->parent_ = sub_root;
-    sub_root->right_ = root->left_;
   }
+  sub_root->right_ = root->left_;
   root->left_ = sub_root;
   if (sub_root->parent_) {
     if (sub_root->parent_->left_ == sub_root) {
@@ -182,8 +186,8 @@ maslevtsov::BiTree< T >* maslevtsov::rotate_right(BiTree< T >* root)
   root = root->left_;
   if (root->right_) {
     root->right_->parent_ = sub_root;
-    sub_root->left_ = root->right_;
   }
+  sub_root->left_ = root->right_;
   root->right_ = sub_root;
   if (sub_root->parent_) {
     if (sub_root->parent_->left_ == sub_root) {
