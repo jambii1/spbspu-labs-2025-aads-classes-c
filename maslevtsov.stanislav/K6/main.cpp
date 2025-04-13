@@ -141,10 +141,10 @@ maslevtsov::BiTree< T >* maslevtsov::convert(const T* data, std::size_t s, Cmp c
   if (!data || s == 0) {
     return nullptr;
   }
-  BiTree< T >* root = new BiTree< T >{data[0], nullptr, nullptr, nullptr};
+  auto root = new BiTree< T >{data[0], nullptr, nullptr, nullptr};
   try {
     for (std::size_t i = 1; i != s; ++i) {
-      BiTree< T >* node = new BiTree< T >{data[i], nullptr, nullptr, nullptr};
+      auto node = new BiTree< T >{data[i], nullptr, nullptr, nullptr};
       insert(root, node, cmp);
     }
   } catch (const std::bad_alloc&) {
