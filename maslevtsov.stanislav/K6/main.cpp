@@ -1,0 +1,218 @@
+#include <iostream>
+#include <functional>
+#include <string>
+
+namespace maslevtsov {
+  template< class T >
+  struct BiTree
+  {
+    T data_;
+    BiTree< T >* left_;
+    BiTree< T >* right_;
+    BiTree< T >* parent_;
+  };
+
+  template< class T >
+  void clear(BiTree< T >* root) noexcept;
+
+  template< class T, class Cmp >
+  void insert(BiTree< T >* root, BiTree< T >* node, Cmp cmp) noexcept;
+
+  template< class T, class Cmp >
+  BiTree< T >* convert(const T* data, size_t s, Cmp cmp);
+
+  template< class T, class Cmp >
+  BiTree< T >* find(BiTree< T >* root, const T& value, Cmp cmp) noexcept;
+
+  template< class T >
+  BiTree< T >* rotate_left(BiTree< T >* root);
+
+  template< class T >
+  BiTree< T >* rotate_right(BiTree< T >* root);
+}
+
+namespace detail {
+  template< class T >
+  void change_parent(maslevtsov::BiTree< T >* root, maslevtsov::BiTree< T >* sub_root) noexcept;
+}
+
+int main()
+{
+  std::size_t seq_size = 0;
+  std::cin >> seq_size;
+  int* seq = nullptr;
+  try {
+    seq = new int[seq_size];
+  } catch (const std::bad_alloc&) {
+    std::cerr << "<MEMORY ALLOCATION ERROR>\n";
+    return 1;
+  }
+  std::size_t i = 0;
+  while (std::cin && i != seq_size) {
+    std::cin >> seq[i++];
+  }
+  if (!std::cin) {
+    delete[] seq;
+    std::cerr << "<INVALID SEQUENCE>\n";
+    return 1;
+  }
+  maslevtsov::BiTree< int >* root = nullptr;
+  try {
+    root = maslevtsov::convert(seq, seq_size, std::less< int >());
+  } catch (const std::bad_alloc&) {
+    delete[] seq;
+    std::cerr << "<CONVERTATION ERROR\n>";
+    return 1;
+  }
+
+  std::string command = "";
+  int num = 0;
+  maslevtsov::BiTree< int >* result = nullptr;
+  bool if_root_changed = false;
+  while (std::cin >> command >> num) {
+    if (!std::cin) {
+      delete[] seq;
+      if_root_changed ? clear(result) : clear(root);
+      std::cerr << "<INVALID COMMAND>\n";
+      return 1;
+    }
+    try {
+      if (command == "right") {
+        result = maslevtsov::rotate_right(find(root, num, std::less< int >()));
+      } else if (command == "left") {
+        result = maslevtsov::rotate_left(find(root, num, std::less< int >()));
+      } else {
+        throw std::invalid_argument("invalid command");
+      }
+      if_root_changed = true;
+      if (result) {
+        std::cout << result->data_ << '\n';
+      }
+    } catch (const std::invalid_argument&) {
+      delete[] seq;
+      if_root_changed ? clear(result) : clear(root);
+      std::cerr << "<INVALID COMMAND>\n";
+      return 1;
+    } catch (const std::logic_error&) {
+      std::cout << "<INVALID ROTATE>\n";
+    }
+  }
+
+  delete[] seq;
+  if_root_changed ? clear(result) : clear(root);
+}
+
+template< class T >
+void maslevtsov::clear(BiTree< T >* root) noexcept
+{
+  if (!root) {
+    return;
+  }
+  clear(root->left_);
+  clear(root->right_);
+  delete root;
+}
+
+template< class T, class Cmp >
+void maslevtsov::insert(BiTree< T >* root, BiTree< T >* node, Cmp cmp) noexcept
+{
+  BiTree< T >* sub_root = root;
+  while (sub_root) {
+    if (cmp(sub_root->data_, node->data_)) {
+      if (!sub_root->right_) {
+        sub_root->right_ = node;
+        break;
+      }
+      sub_root = sub_root->right_;
+    } else {
+      if (!sub_root->left_) {
+        sub_root->left_ = node;
+        break;
+      }
+      sub_root = sub_root->left_;
+    }
+  }
+  node->parent_ = sub_root;
+}
+
+template< class T, class Cmp >
+maslevtsov::BiTree< T >* maslevtsov::convert(const T* data, std::size_t s, Cmp cmp)
+{
+  if (!data || s == 0) {
+    return nullptr;
+  }
+  auto root = new BiTree< T >{data[0], nullptr, nullptr, nullptr};
+  try {
+    for (std::size_t i = 1; i != s; ++i) {
+      auto node = new BiTree< T >{data[i], nullptr, nullptr, nullptr};
+      insert(root, node, cmp);
+    }
+  } catch (const std::bad_alloc&) {
+    clear(root);
+    throw;
+  }
+  return root;
+}
+
+template< class T >
+maslevtsov::BiTree< T >* maslevtsov::rotate_left(BiTree< T >* root)
+{
+  if (!root || !root->right_) {
+    throw std::logic_error("unable to rotate");
+  }
+  BiTree< T >* sub_root = root;
+  root = root->right_;
+  if (root->left_) {
+    root->left_->parent_ = sub_root;
+  }
+  sub_root->right_ = root->left_;
+  root->left_ = sub_root;
+  detail::change_parent(root, sub_root);
+  return root;
+}
+
+template< class T >
+maslevtsov::BiTree< T >* maslevtsov::rotate_right(BiTree< T >* root)
+{
+  if (!root || !root->left_) {
+    throw std::logic_error("unable to rotate");
+  }
+  BiTree< T >* sub_root = root;
+  root = root->left_;
+  if (root->right_) {
+    root->right_->parent_ = sub_root;
+  }
+  sub_root->left_ = root->right_;
+  root->right_ = sub_root;
+  detail::change_parent(root, sub_root);
+  return root;
+}
+
+template< class T, class Cmp >
+maslevtsov::BiTree< T >* maslevtsov::find(BiTree< T >* root, const T& value, Cmp cmp) noexcept
+{
+  BiTree< T >* result = root;
+  while (result && result->data_ != value) {
+    if (cmp(result->data_, value)) {
+      result = result->right_;
+    } else {
+      result = result->left_;
+    }
+  }
+  return result;
+}
+
+template< class T >
+void detail::change_parent(maslevtsov::BiTree< T >* root, maslevtsov::BiTree< T >* sub_root) noexcept
+{
+  if (sub_root->parent_) {
+    if (sub_root->parent_->left_ == sub_root) {
+      sub_root->parent_->left_ = root;
+    }
+    if (sub_root->parent_->right_ == sub_root) {
+      sub_root->parent_->right_ = root;
+    }
+  }
+  root->parent_ = sub_root->parent_;
+  sub_root->parent_ = root;
+}
