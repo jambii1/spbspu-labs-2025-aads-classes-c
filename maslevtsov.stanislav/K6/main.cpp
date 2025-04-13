@@ -60,21 +60,15 @@ int main()
     return 1;
   }
 
-  while (!std::cin.eof()) {
-    std::string command = "";
-    int num = 0;
-    std::cin >> command >> num;
-    if (!std::cin) {
-      delete[] seq;
-      clear(root);
-      std::cerr << "<INVALID COMMAND>\n";
-      return 1;
-    }
+  std::string command = "";
+  int num = 0;
+  while (std::cin >> command >> num || !std::cin.eof()) {
+    maslevtsov::BiTree< int >* sub_root = root;
     try {
       if (command == "right") {
-        maslevtsov::rotate_right(find(root, num, std::less< int >()));
+        maslevtsov::rotate_right(find(sub_root, num, std::less< int >()));
       } else if (command == "left") {
-        maslevtsov::rotate_left(find(root, num, std::less< int >()));
+        maslevtsov::rotate_left(find(sub_root, num, std::less< int >()));
       } else {
         throw std::invalid_argument("invalid command");
       }
@@ -89,6 +83,12 @@ int main()
       std::cerr << "INVALID ROTATE\n";
       return 1;
     }
+  }
+  if (!std::cin.eof() && !std::cin) {
+    delete[] seq;
+    clear(root);
+    std::cerr << "<INVALID COMMAND>\n";
+    return 1;
   }
 }
 
@@ -105,12 +105,30 @@ void maslevtsov::clear(BiTree< T >* root) noexcept
 
 template< class T, class Cmp >
 void maslevtsov::insert(BiTree< T >* root, BiTree< T >* node, Cmp cmp) noexcept
-{}
+{
+  BiTree< T >* sub_root = root;
+  while (sub_root) {
+    if (cmp(sub_root->data_, node->data_)) {
+      if (!sub_root->right_) {
+        sub_root->right_ = node;
+        break;
+      }
+      sub_root = sub_root->right_;
+    } else {
+      if (!sub_root->left_) {
+        sub_root->left_ = node;
+        break;
+      }
+      sub_root = sub_root->left_;
+    }
+  }
+  node->parent_ = sub_root;
+}
 
 template< class T, class Cmp >
 maslevtsov::BiTree< T >* maslevtsov::convert(const T* data, std::size_t s, Cmp cmp)
 {
-  if (s == 0) {
+  if (!data || s == 0) {
     return nullptr;
   }
   BiTree< T >* root = new BiTree< T >{data[0], nullptr, nullptr, nullptr};
@@ -129,20 +147,17 @@ maslevtsov::BiTree< T >* maslevtsov::convert(const T* data, std::size_t s, Cmp c
 template< class T >
 maslevtsov::BiTree< T >* maslevtsov::rotate_left(BiTree< T >* root)
 {
-  if (!root || root->right_ == nullptr) {
+  if (!root || !root->right_) {
     throw std::logic_error("unable to rotate");
   }
   BiTree< T >* sub_root = root;
   root = root->right_;
-  if (sub_root->left_ == root) {
-    sub_root->left_ = root->left_;
-  }
-  if (sub_root->right_ == root) {
+  if (root->left_) {
+    root->left_->parent_ = sub_root;
     sub_root->right_ = root->left_;
   }
-  root->left_->parent_ = sub_root;
   root->left_ = sub_root;
-  if (sub_root->parent_ != nullptr) {
+  if (sub_root->parent_) {
     if (sub_root->parent_->left_ == sub_root) {
       sub_root->parent_->left_ = root;
     }
@@ -158,20 +173,17 @@ maslevtsov::BiTree< T >* maslevtsov::rotate_left(BiTree< T >* root)
 template< class T >
 maslevtsov::BiTree< T >* maslevtsov::rotate_right(BiTree< T >* root)
 {
-  if (root == nullptr || root->left_ == nullptr) {
+  if (!root || !root->left_) {
     throw std::logic_error("unable to rotate");
   }
   BiTree< T >* sub_root = root;
   root = root->left_;
-  if (sub_root->left_ == root) {
-    sub_root->left_ = root->left_;
+  if (root->right_) {
+    root->right_->parent_ = sub_root;
+    sub_root->left_ = root->right_;
   }
-  if (sub_root->right_ == root) {
-    sub_root->right_ = root->left_;
-  }
-  root->right_->parent_ = sub_root;
   root->right_ = sub_root;
-  if (sub_root->parent_ != nullptr) {
+  if (sub_root->parent_) {
     if (sub_root->parent_->left_ == sub_root) {
       sub_root->parent_->left_ = root;
     }
@@ -189,10 +201,10 @@ maslevtsov::BiTree< T >* maslevtsov::find(BiTree< T >* root, const T& value, Cmp
 {
   BiTree< T >* result = root;
   while (result && result->data_ != value) {
-    if (cmp(value, result->data_)) {
-      result = result->left_;
-    } else {
+    if (cmp(result->data_, value)) {
       result = result->right_;
+    } else {
+      result = result->left_;
     }
   }
   return result;
