@@ -73,28 +73,27 @@ int main()
       } else {
         throw std::invalid_argument("invalid command");
       }
+      if (result) {
+        std::cout << result->data_ << '\n';
+      }
     } catch (const std::invalid_argument&) {
       delete[] seq;
-      clear(root);
+      result == root ? clear(root) : clear(result);
       std::cerr << "<INVALID COMMAND>\n";
       return 1;
     } catch (const std::logic_error&) {
-      std::cerr << "<INVALID ROTATE>\n";
+      std::cout << "<INVALID ROTATE>\n";
     }
   }
   if (!std::cin.eof() && !std::cin) {
     delete[] seq;
-    clear(root);
+    result == root ? clear(root) : clear(result);
     std::cerr << "<INVALID COMMAND>\n";
     return 1;
   }
 
-  if (result) {
-    std::cout << result->data_ << '\n';
-  }
-
   delete[] seq;
-  clear(root);
+  result == root ? clear(root) : clear(result);
 }
 
 template< class T >
