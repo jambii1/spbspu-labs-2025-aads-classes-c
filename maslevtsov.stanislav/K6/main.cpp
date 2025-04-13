@@ -69,7 +69,13 @@ int main()
   int num = 0;
   maslevtsov::BiTree< int >* result = nullptr;
   bool if_root_changed = false;
-  while (std::cin >> command >> num || !std::cin.eof()) {
+  while (std::cin >> command >> num) {
+    if (!std::cin) {
+      delete[] seq;
+      if_root_changed ? clear(result) : clear(root);
+      std::cerr << "<INVALID COMMAND>\n";
+      return 1;
+    }
     try {
       if (command == "right") {
         result = maslevtsov::rotate_right(find(root, num, std::less< int >()));
@@ -90,12 +96,6 @@ int main()
     } catch (const std::logic_error&) {
       std::cout << "<INVALID ROTATE>\n";
     }
-  }
-  if (!std::cin.eof() && !std::cin) {
-    delete[] seq;
-    if_root_changed ? clear(result) : clear(root);
-    std::cerr << "<INVALID COMMAND>\n";
-    return 1;
   }
 
   delete[] seq;
