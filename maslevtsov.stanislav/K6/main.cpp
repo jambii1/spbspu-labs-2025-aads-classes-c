@@ -63,6 +63,7 @@ int main()
   std::string command = "";
   int num = 0;
   maslevtsov::BiTree< int >* result = nullptr;
+  bool if_root_changed = false;
   while (std::cin >> command >> num || !std::cin.eof()) {
     try {
       if (command == "right") {
@@ -72,12 +73,13 @@ int main()
       } else {
         throw std::invalid_argument("invalid command");
       }
+      if_root_changed = true;
       if (result) {
         std::cout << result->data_ << '\n';
       }
     } catch (const std::invalid_argument&) {
       delete[] seq;
-      result == root ? clear(result) : clear(root);
+      if_root_changed ? clear(result) : clear(root);
       std::cerr << "<INVALID COMMAND>\n";
       return 1;
     } catch (const std::logic_error&) {
@@ -86,13 +88,13 @@ int main()
   }
   if (!std::cin.eof() && !std::cin) {
     delete[] seq;
-    result == root ? clear(result) : clear(root);
+    if_root_changed ? clear(result) : clear(root);
     std::cerr << "<INVALID COMMAND>\n";
     return 1;
   }
 
   delete[] seq;
-  result == root ? clear(result) : clear(root);
+  if_root_changed ? clear(result) : clear(root);
 }
 
 template< class T >
