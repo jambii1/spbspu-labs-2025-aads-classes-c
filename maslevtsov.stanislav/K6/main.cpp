@@ -31,6 +31,11 @@ namespace maslevtsov {
   BiTree< T >* rotate_right(BiTree< T >* root);
 }
 
+namespace detail {
+  template< class T >
+  void change_parent(maslevtsov::BiTree< T >* root, maslevtsov::BiTree< T >* sub_root) noexcept;
+}
+
 int main()
 {
   std::size_t seq_size = 0;
@@ -162,16 +167,7 @@ maslevtsov::BiTree< T >* maslevtsov::rotate_left(BiTree< T >* root)
   }
   sub_root->right_ = root->left_;
   root->left_ = sub_root;
-  if (sub_root->parent_) {
-    if (sub_root->parent_->left_ == sub_root) {
-      sub_root->parent_->left_ = root;
-    }
-    if (sub_root->parent_->right_ == sub_root) {
-      sub_root->parent_->right_ = root;
-    }
-  }
-  root->parent_ = sub_root->parent_;
-  sub_root->parent_ = root;
+  detail::change_parent(root, sub_root);
   return root;
 }
 
@@ -188,16 +184,7 @@ maslevtsov::BiTree< T >* maslevtsov::rotate_right(BiTree< T >* root)
   }
   sub_root->left_ = root->right_;
   root->right_ = sub_root;
-  if (sub_root->parent_) {
-    if (sub_root->parent_->left_ == sub_root) {
-      sub_root->parent_->left_ = root;
-    }
-    if (sub_root->parent_->right_ == sub_root) {
-      sub_root->parent_->right_ = root;
-    }
-  }
-  root->parent_ = sub_root->parent_;
-  sub_root->parent_ = root;
+  detail::change_parent(root, sub_root);
   return root;
 }
 
@@ -213,4 +200,19 @@ maslevtsov::BiTree< T >* maslevtsov::find(BiTree< T >* root, const T& value, Cmp
     }
   }
   return result;
+}
+
+template< class T >
+void detail::change_parent(maslevtsov::BiTree< T >* root, maslevtsov::BiTree< T >* sub_root) noexcept
+{
+  if (sub_root->parent_) {
+    if (sub_root->parent_->left_ == sub_root) {
+      sub_root->parent_->left_ = root;
+    }
+    if (sub_root->parent_->right_ == sub_root) {
+      sub_root->parent_->right_ = root;
+    }
+  }
+  root->parent_ = sub_root->parent_;
+  sub_root->parent_ = root;
 }
