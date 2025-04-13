@@ -64,12 +64,11 @@ int main()
   int num = 0;
   maslevtsov::BiTree< int >* result = nullptr;
   while (std::cin >> command >> num || !std::cin.eof()) {
-    maslevtsov::BiTree< int >* sub_root = root;
     try {
       if (command == "right") {
-        result = maslevtsov::rotate_right(find(sub_root, num, std::less< int >()));
+        result = maslevtsov::rotate_right(find(root, num, std::less< int >()));
       } else if (command == "left") {
-        result = maslevtsov::rotate_left(find(sub_root, num, std::less< int >()));
+        result = maslevtsov::rotate_left(find(root, num, std::less< int >()));
       } else {
         throw std::invalid_argument("invalid command");
       }
@@ -78,7 +77,7 @@ int main()
       }
     } catch (const std::invalid_argument&) {
       delete[] seq;
-      result == root ? clear(root) : clear(result);
+      result == root ? clear(result) : clear(root);
       std::cerr << "<INVALID COMMAND>\n";
       return 1;
     } catch (const std::logic_error&) {
@@ -87,13 +86,13 @@ int main()
   }
   if (!std::cin.eof() && !std::cin) {
     delete[] seq;
-    result == root ? clear(root) : clear(result);
+    result == root ? clear(result) : clear(root);
     std::cerr << "<INVALID COMMAND>\n";
     return 1;
   }
 
   delete[] seq;
-  result == root ? clear(root) : clear(result);
+  result == root ? clear(result) : clear(root);
 }
 
 template< class T >
